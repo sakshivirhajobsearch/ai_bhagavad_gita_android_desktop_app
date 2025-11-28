@@ -3,7 +3,15 @@ from data.shlokas import ALL_SHLOKAS
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# ------------------------------------------
+# Single final output file
+# ------------------------------------------
 OUTPUT_HTML = os.path.join(
+    BASE_DIR,
+    "android", "app", "src", "main", "assets", "html", "gita_shlokas.html"
+)
+
+OLD_HTML_FILE = os.path.join(
     BASE_DIR,
     "android", "app", "src", "main", "assets", "html", "gita_problems.html"
 )
@@ -15,16 +23,14 @@ def flatten_sections(all_sections):
     flat = []
 
     for sec in all_sections:
-
-        # unwrap nested sections like [ {..} ]
         if isinstance(sec, list):
             sec = sec[0]
 
-        section_title = sec.get("title", "")
+        title = sec.get("title", "")
 
         for s in sec.get("shlokas", []):
             flat.append({
-                "section": section_title,
+                "section": title,
                 "problem": s.get("problem", ""),
                 "reference": s.get("reference", ""),
                 "text": s.get("text", ""),
@@ -37,7 +43,6 @@ def flatten_sections(all_sections):
 
 
 def js_escape(text):
-    """Escape JS-breaking characters."""
     if not text:
         return ""
     return (
@@ -47,12 +52,11 @@ def js_escape(text):
     )
 
 
-def generate_html(flat_data):
+def generate_html(flat):
 
-    js_entries = []
-
-    for i, s in enumerate(flat_data, start=1):
-        js_entries.append(
+    js_items = []
+    for i, s in enumerate(flat, start=1):
+        js_items.append(
             "        {\n"
             f"            id: {i},\n"
             f"            section: `{js_escape(s['section'])}`,\n"
@@ -64,18 +68,14 @@ def generate_html(flat_data):
             "        }"
         )
 
-    js_array = ",\n".join(js_entries)
-
-    # ----------------------
-    # SAFE HTML TEMPLATE
-    # ----------------------
+    js_array = ",\n".join(js_items)
 
     html = f"""
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI Bhagavad Gita by Anurag Vasu Bharti</title>
 
 <style>
@@ -86,9 +86,9 @@ body {{
 }}
 .frame {{
     background: white;
-    padding: 10px;
+    padding: 12px;
     border: 2px solid black;
-    border-radius: 12px;
+    border-radius: 10px;
     margin-bottom: 16px;
 }}
 button {{
@@ -100,24 +100,26 @@ button {{
 }}
 .green {{ background: green; color: white; }}
 .red {{ background: red; color: white; }}
+.blue {{ background: #007bff; color: white; }}
 .nav {{
     display: flex;
     justify-content: space-between;
     margin-top: 12px;
 }}
 </style>
-
 </head>
+
 <body>
 
-<h1 style="text-align:center;">AI Bhagavad Gita by Anurag Vasu Bharti</h1>
-<h3 style="text-align:center;">📖 भगवद गीता में अपनी समस्याओं का समाधान खोजें</h3>
+<h1 style="text-align:center;">AI Bhagwat Geeta by Anurag Vasu Bharti</h1>
+<h3 style="text-align:center;">📘 भगवद गीता में अपनी समस्याओं का समाधान खोजें</h3>
 
 <div style="text-align:center;">
     <button class="green" onclick="startAuto()">Start</button>
-    <button class="red" onclick="randomPage()">Random</button>
     <button class="red" onclick="stopAuto()">Stop</button>
     <button class="green" onclick="resumeAuto()">Resume</button>
+    <button class="red" onclick="randomPage()">Random</button>
+    <button class="blue" onclick="readShloka()">🔊 AI पढ़े</button>
     <button class="red" onclick="Android.exitApp()">Exit</button>
 </div>
 
@@ -126,9 +128,9 @@ button {{
 <div id="content"></div>
 
 <div class="nav">
-    <button onclick="prevPage()">⬅ Previous</button>
+    <button onclick="prevPage()">⬅ पिछला</button>
     <span id="pageInfo"></span>
-    <button onclick="nextPage()">Next ➡</button>
+    <button onclick="nextPage()">अगला ➡</button>
 </div>
 
 <script>
@@ -149,14 +151,19 @@ function render() {{
 
     for (let i = start; i < end; i++) {{
         const s = SHLOKAS[i];
+
         c.innerHTML += `
         <div class="frame">
-            <b>${{s.section}}</b><br/>
-            <b>Problem:</b> ${{s.problem}}<br/>
-            <b>${{s.reference}}</b><br/><br/>
+            <b>📗 अनुभाग:</b> ${{s.section}}<br><br>
+            <b>🧩 समस्या:</b> ${{s.problem}}<br><br>
+            <b>📌 संदर्भ:</b> ${{s.reference}}<br><br>
+
+            <b>📜 संस्कृत श्लोक:</b>
             <pre>${{s.text}}</pre>
-            <b>Meaning:</b> ${{s.meaning}}<br/><br/>
-            <b>Example:</b> ${{s.example}}
+
+            <b>📝 अर्थ:</b><br>${{s.meaning}}<br><br>
+
+            <b>🌿 उदाहरण:</b><br>${{s.example}}
         </div>`;
     }}
 
@@ -182,7 +189,7 @@ function randomPage() {{
 
 function startAuto() {{
     stopAuto();
-    autoTimer = setInterval(() => nextPage(), 15000);
+    autoTimer = setInterval(nextPage, 15000);
 }}
 
 function stopAuto() {{
@@ -196,6 +203,21 @@ function resumeAuto() {{
     if (!autoTimer) startAuto();
 }}
 
+function readShloka() {{
+    const s = SHLOKAS[page * PER_PAGE];
+
+    let textToRead = 
+        "समस्या: " + s.problem + ". " +
+        "संदर्भ: " + s.reference + ". " +
+        "श्लोक: " + s.text + ". " +
+        "अर्थ: " + s.meaning + ". " +
+        "उदाहरण: " + s.example;
+
+    let msg = new SpeechSynthesisUtterance(textToRead);
+    msg.lang = "hi-IN";
+    speechSynthesis.speak(msg);
+}}
+
 render();
 </script>
 
@@ -207,10 +229,14 @@ render();
 
 
 def main():
-    print("🔹 Flattening Section Data...")
-    flat = flatten_sections(ALL_SHLOKAS)
+    if os.path.exists(OLD_HTML_FILE):
+        try:
+            os.remove(OLD_HTML_FILE)
+            print("🗑 Deleted old file:", OLD_HTML_FILE)
+        except:
+            pass
 
-    print("🔹 Generating HTML...")
+    flat = flatten_sections(ALL_SHLOKAS)
     html = generate_html(flat)
 
     os.makedirs(os.path.dirname(OUTPUT_HTML), exist_ok=True)
@@ -218,7 +244,7 @@ def main():
     with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print("✅ HTML Generated At:")
+    print("✅ FINAL HTML GENERATED:")
     print(OUTPUT_HTML)
 
 

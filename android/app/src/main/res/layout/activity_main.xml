@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="8dp">
+
+    <!-- Top Orange Header -->
+    <TextView
+        android:id="@+id/tvAppTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFA500"
+        android:padding="12dp"
+        android:text="AI Bhagwat Geeta by Anurag Vasu Bharti"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center" />
+
+    <!-- Main Heading -->
+    <TextView
+        android:id="@+id/tvMainHeading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📖 भगवद गीता में अपनी समस्याओं का समाधान खोजें"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="8dp"
+        android:paddingBottom="4dp"
+        android:gravity="center"
+        android:textColor="#000000" />
+
+    <!-- Underline -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000"
+        android:layout_marginBottom="6dp" />
+
+    <!-- Top Control Buttons Row -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnStart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start"
+                android:layout_margin="4dp"
+                android:textSize="14sp"
+                android:backgroundTint="#4CAF50" />
+
+            <Button
+                android:id="@+id/btnRandom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Random"
+                android:layout_margin="4dp"
+                android:textSize="14sp"
+                android:backgroundTint="#F44336" />
+
+            <Button
+                android:id="@+id/btnStop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stop"
+                android:layout_margin="4dp"
+                android:textSize="14sp"
+                android:backgroundTint="#F44336" />
+
+            <Button
+                android:id="@+id/btnResume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Resume"
+                android:layout_margin="4dp"
+                android:textSize="14sp"
+                android:backgroundTint="#4CAF50" />
+
+            <Button
+                android:id="@+id/btnExit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exit"
+                android:layout_margin="4dp"
+                android:textSize="14sp"
+                android:backgroundTint="#F44336" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Underline under buttons -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Scrollable area for 2 shlokas per screen -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/contentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Section Title -->
+            <TextView
+                android:id="@+id/tvSectionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📖 भाग – 1 (पहले 4 समस्याओं के श्लोक)"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:padding="6dp"
+                android:textColor="#000000" />
+
+            <!-- Problem Title (e.g. विस्मृति...) -->
+            <TextView
+                android:id="@+id/tvProblemTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔶 1. विस्मृति / अर्थ भूल जाना"
+                android:textStyle="bold"
+                android:textSize="15sp"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:paddingBottom="4dp"
+                android:textColor="#000000" />
+
+            <!-- Shloka 1 Frame -->
+            <LinearLayout
+                android:id="@+id/frameShloka1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/shloka_frame_bg"
+                android:padding="8dp"
+                android:layout_margin="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="space_between|center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvShloka1Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📜 श्लोक 1"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#000000" />
+
+                    <Button
+                        android:id="@+id/btnShloka1Start"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start"
+                        android:textSize="12sp"
+                        android:backgroundTint="#4CAF50"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/btnShloka1Stop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Stop"
+                        android:textSize="12sp"
+                        android:backgroundTint="#F44336" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvShloka1Ref"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="अध्याय 15 : श्लोक 15"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvShloka1Sanskrit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="संस्कृत श्लोक यहाँ आएगा"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp"
+                    android:fontFamily="@font/notoserifdevanagari_regular"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvShloka1Hindi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="हिन्दी अर्थ यहाँ आएगा"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvShloka1Example"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="उदाहरण यहाँ आएगा"
+                    android:textSize="13sp"
+                    android:paddingTop="4dp"
+                    android:textColor="#444444" />
+
+            </LinearLayout>
+
+            <!-- Shloka 2 Frame -->
+            <LinearLayout
+                android:id="@+id/frameShloka2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/shloka_frame_bg"
+                android:padding="8dp"
+                android:layout_margin="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="space_between|center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvShloka2Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="📜 श्लोक 2"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#000000" />
+
+                    <Button
+                        android:id="@+id/btnShloka2Start"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Start"
+                        android:textSize="12sp"
+                        android:backgroundTint="#4CAF50"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/btnShloka2Stop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Stop"
+                        android:textSize="12sp"
+                        android:backgroundTint="#F44336" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvShloka2Ref"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="अध्याय 18 : श्लोक 61"
+                    android:textStyle="bold"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvShloka2Sanskrit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="संस्कृत श्लोक यहाँ आएगा"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp"
+                    android:fontFamily="@font/notoserifdevanagari_regular"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvShloka2Hindi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="हिन्दी अर्थ यहाँ आएगा"
+                    android:textSize="14sp"
+                    android:paddingTop="4dp"
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:id="@+id/tvShloka2Example"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="उदाहरण यहाँ आएगा"
+                    android:textSize="13sp"
+                    android:paddingTop="4dp"
+                    android:textColor="#444444" />
+
+            </LinearLayout>
+
+            <!-- Underline between screens -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#000000"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Prev / Next Buttons -->
+    <LinearLayout
+        android:id="@+id/bottomNavLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="4dp">
+
+        <Button
+            android:id="@+id/btnPrevious"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="◀ Previous"
+            android:layout_weight="1"
+            android:backgroundTint="#DDDDDD" />
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Next ▶"
+            android:layout_weight="1"
+            android:backgroundTint="#DDDDDD" />
+    </LinearLayout>
+
+</LinearLayout>

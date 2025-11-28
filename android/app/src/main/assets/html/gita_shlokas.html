@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Bhagwat Geeta by Anurag Vasu Bharti</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        @font-face {
+            font-family: 'NotoSerifDevanagari';
+            src: url('fonts/NotoSerifDevanagari-Regular.ttf') format('truetype');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'NotoSerifDevanagari', sans-serif;
+            background-color: #ff9800;
+            color: #000;
+        }
+
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 10px 10px 60px 10px;
+        }
+
+        .top-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            padding: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+        }
+
+        .main-heading {
+            text-align: center;
+            font-size: 18px;
+            margin-top: 6px;
+        }
+
+        .underline {
+            border-bottom: 2px solid black;
+            margin: 5px 0;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin: 8px 0;
+        }
+
+        button {
+            padding: 6px 10px;
+            border-radius: 16px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .green { background-color: #4caf50; color: white; }
+        .red { background-color: #f44336; color: white; }
+
+        .section-frame {
+            border: 2px solid black;
+            border-radius: 10px;
+            padding: 10px;
+            background: rgba(255,255,255,0.85);
+            margin: 10px 0;
+        }
+
+        .shloka-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .nav-btn {
+            padding: 5px 14px;
+            background: black;
+            color: white;
+            border-radius: 20px;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="app-container">
+
+<div class="top-title">AI Bhagwat Geeta by Anurag Vasu Bharti</div>
+
+<div class="main-heading">
+📖 भगवद गीता में अपनी समस्याओं का समाधान खोजें
+</div>
+
+<div class="underline"></div>
+
+<div class="control-row">
+    <button onclick="startAuto()" class="green">Start</button>
+    <button onclick="randomPage()" class="red">Random</button>
+    <button onclick="stopAuto()" class="red">Stop</button>
+    <button onclick="resumeAuto()" class="green">Resume</button>
+    <button onclick="Android.exitApp()" class="red">Exit</button>
+</div>
+
+<div class="underline"></div>
+
+<div id="content"></div>
+
+<div class="page-footer">
+    <button onclick="prevPage()" class="nav-btn">⟵ Previous</button>
+    <span id="pageInfo"></span>
+    <button onclick="nextPage()" class="nav-btn">Next ⟶</button>
+</div>
+
+</div>
+
+<script>
+
+const SHLOKAS_PER_PAGE = 2;
+let currentPage = 0;
+let autoTimer = null;
+
+const shlokas = [
+
+];
+
+const contentDiv = document.getElementById("content");
+const pageInfo = document.getElementById("pageInfo");
+
+function renderPage() {
+    const totalPages = Math.ceil(shlokas.length / SHLOKAS_PER_PAGE);
+
+    const start = currentPage * SHLOKAS_PER_PAGE;
+    const end = Math.min(start + SHLOKAS_PER_PAGE, shlokas.length);
+
+    contentDiv.innerHTML = "";
+
+    for (let i = start; i < end; i++) {
+        const s = shlokas[i];
+
+        const html = `
+        <div class="section-frame">
+            <div><b>${s.sectionTitle}</b></div>
+            <div>${s.problemTitle}</div>
+
+            <div class="shloka-header">
+                <div><b>${s.shlokaLabel}</b></div>
+                <div>
+                    <button class="green">Start</button>
+                    <button class="red">Stop</button>
+                </div>
+            </div>
+
+            <div><b>${s.chapterInfo}</b></div>
+
+            <b>संस्कृत:</b>
+            <pre>${s.sanskrit}</pre>
+
+            <b>हिन्दी अर्थ:</b>
+            <pre>${s.hindi}</pre>
+
+            <b>उदाहरण:</b>
+            <pre>${s.example}</pre>
+        </div>
+        `;
+
+        contentDiv.innerHTML += html;
+    }
+
+    pageInfo.innerText = "Page " + (currentPage+1) + " / " + totalPages;
+    window.scrollTo(0,0);
+}
+
+function nextPage() {
+    currentPage++;
+    if (currentPage >= Math.ceil(shlokas.length/SHLOKAS_PER_PAGE))
+        currentPage = 0;
+    renderPage();
+}
+
+function prevPage() {
+    currentPage--;
+    if (currentPage < 0)
+        currentPage = Math.ceil(shlokas.length/SHLOKAS_PER_PAGE)-1;
+    renderPage();
+}
+
+function randomPage() {
+    currentPage = Math.floor(Math.random() * Math.ceil(shlokas.length/SHLOKAS_PER_PAGE));
+    renderPage();
+}
+
+function startAuto() {
+    stopAuto();
+    autoTimer = setInterval(nextPage, 15000);
+}
+
+function stopAuto() {
+    if(autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+    }
+}
+
+function resumeAuto() {
+    if(!autoTimer) {
+        startAuto();
+    }
+}
+
+renderPage();
+</script>
+
+</body>
+</html>

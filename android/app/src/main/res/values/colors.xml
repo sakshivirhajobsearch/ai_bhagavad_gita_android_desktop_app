@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Primary Theme Colors -->
+    <color name="colorPrimary">#6D4C41</color>      <!-- Deep Brown -->
+    <color name="colorPrimaryDark">#4E342E</color> <!-- Darker Brown -->
+    <color name="colorAccent">#D7A86E</color>      <!-- Gita Gold -->
+
+    <!-- Background -->
+    <color name="colorBackground">#F7F5F0</color>
+
+    <!-- Text Colors -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#5F5F5F</color>
+
+</resources>

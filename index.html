@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <title>भगवद गीता समस्या समाधान</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Noto Serif Devanagari", serif;
+            background: #f7f7f7;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .left-panel {
+            width: 40%;
+            background: #ffffff;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 2px solid #ddd;
+        }
+
+        .right-panel {
+            width: 60%;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        h1 {
+            font-size: 22px;
+            color: #7b1fa2;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+
+        ul li {
+            margin: 6px 0;
+            cursor: pointer;
+            color: #1565c0;
+        }
+
+        ul li:hover {
+            text-decoration: underline;
+        }
+
+        .shloka-box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            margin-bottom: 20px;
+        }
+
+        .shloka {
+            font-size: 20px;
+            margin-bottom: 10px;
+            white-space: pre-line;
+        }
+
+        .arth, .example {
+            margin-top: 8px;
+            color: #444;
+        }
+
+        .example {
+            font-style: italic;
+            color: #2e7d32;
+        }
+    </style>
+
+    <script>
+        function showContent(id) {
+            let sections = document.getElementsByClassName("shloka-box");
+            for (let i = 0; i < sections.length; i++) {
+                sections[i].style.display = "none";
+            }
+            document.getElementById(id).style.display = "block";
+        }
+    </script>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="left-panel">
+        <h1>भगवद गीता में अपनी समस्याओं का समाधान खोजें</h1>
+
+        <h2>विस्मृति / अर्थ भूल जाना</h2>
+        <ul>
+            <li onclick="showContent('shloka1')">अध्याय 15 / श्लोक 15</li>
+            <li onclick="showContent('shloka2')">अध्याय 18 / श्लोक 61</li>
+        </ul>
+
+        <h2>डर लगना</h2>
+        <ul>
+            <li onclick="showContent('shloka3')">अध्याय 04 / श्लोक 10</li>
+            <li onclick="showContent('shloka4')">अध्याय 11 / श्लोक 50</li>
+            <li onclick="showContent('shloka5')">अध्याय 18 / श्लोक 30</li>
+        </ul>
+    </div>
+
+    <div class="right-panel">
+
+        <!-- Shloka 1 -->
+        <div id="shloka1" class="shloka-box">
+            <div class="shloka">
+सर्वस्य चाहं हृदि सन्निविष्टो
+मत्तः स्मृतिर्ज्ञानमपोहनं च।
+वेदैश्च सर्वैरहमेव वेद्यो
+वेदान्तकृद्वेदविदेव चाहम्॥
+            </div>
+
+            <div class="arth">
+                अर्थ: मैं प्रत्येक प्राणी के हृदय में स्थित हूँ। मेरे कारण ही स्मरण शक्ति,
+                ज्ञान और विस्मृति होती है। सभी वेदों द्वारा मुझे ही जाना जाता है।
+            </div>
+
+            <div class="example">
+                उदाहरण: जब परीक्षा में अचानक कुछ भूल जाएँ या याद आ जाए,
+                तो घबराने की बजाय शांत हो जाना चाहिए — यह ईश्वर की व्यवस्था है।
+            </div>
+        </div>
+
+        <!-- Shloka 2 -->
+        <div id="shloka2" class="shloka-box" style="display:none;">
+            <div class="shloka">
+ईश्वरः सर्वभूतानां
+हृद्देशेऽर्जुन तिष्ठति।
+भ्रामयन्सर्वभूतानि
+यन्त्रारूढानि मायया॥
+            </div>
+
+            <div class="arth">
+                अर्थ: ईश्वर सभी प्राणियों के हृदय में स्थित हैं
+                और अपनी माया से उन्हें उनके कर्मों के अनुसार भ्रमित कराते हैं।
+            </div>
+
+            <div class="example">
+                उदाहरण: जैसे गेम डेवलपर सभी कैरेक्टर को कंट्रोल करता है,
+                वैसे ही ईश्वर संसार को संचालित करते हैं।
+            </div>
+        </div>
+
+        <!-- Shloka 3 -->
+        <div id="shloka3" class="shloka-box" style="display:none;">
+            <div class="shloka">
+वीतरागभयक्रोधा
+मन्मया मामुपाश्रिताः।
+बहवो ज्ञानतपसा
+पूता मद्भावमागताः॥
+            </div>
+
+            <div class="arth">
+                अर्थ: जो राग, भय और क्रोध से मुक्त होकर मुझमें मन लगाते हैं,
+                वे ज्ञान से शुद्ध होकर मुझे प्राप्त करते हैं।
+            </div>
+
+            <div class="example">
+                उदाहरण: जो छात्र भविष्य का डर छोड़ देता है,
+                वह बेहतर प्रदर्शन करता है।
+            </div>
+        </div>
+
+        <!-- Shloka 4 -->
+        <div id="shloka4" class="shloka-box" style="display:none;">
+            <div class="shloka">
+इत्यर्जुनं वासुदेवस्तथोक्त्वा
+स्वकं रूपं दर्शयामास भूयः।
+आश्वासयामास च भीतमेनं
+भूत्वा पुनः सौम्यवपुर्महात्मा॥
+            </div>
+
+            <div class="arth">
+                अर्थ: भगवान कृष्ण ने अर्जुन को विराट रूप दिखाने के बाद
+                उसे अपने सौम्य रूप से शांत किया।
+            </div>
+
+            <div class="example">
+                उदाहरण: जब कोई बहुत घबरा जाता है,
+                प्रेम और सहानुभूति ही उसे शांत करती है।
+            </div>
+        </div>
+
+        <!-- Shloka 5 -->
+        <div id="shloka5" class="shloka-box" style="display:none;">
+            <div class="shloka">
+प्रवृत्तिं च निवृत्तिं च
+कार्याकार्ये भयाभये।
+बन्धं मोक्षं च या वेत्ति
+बुद्धिः सा पार्थ सात्त्विकी॥
+            </div>
+
+            <div class="arth">
+                अर्थ: जो बुद्धि सही-गलत, डर-निर्भय और बंधन-मोक्ष को समझती है,
+                वही सात्त्विक बुद्धि है।
+            </div>
+
+            <div class="example">
+                उदाहरण: डर की जगह विवेक से निर्णय लेना
+                सफलता की कुंजी है।
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

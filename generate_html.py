@@ -32,8 +32,17 @@ def flatten_sections(all_sections):
                     "section": title,
                     "problem": title,
                     "reference": reference,
+
+                    # NEW: संस्कृत
                     "text": s.get("sanskrit", ""),
+
+                    # अर्थ
                     "meaning": s.get("hindi_arth", ""),
+
+                    # ✅ NEW: सरल अर्थ
+                    "saral": s.get("saral", ""),
+
+                    # उदाहरण
                     "example": s.get("udaharan", "")
                 })
     return flat
@@ -52,9 +61,15 @@ def js_escape(t):
 
 
 def clean_text_for_example(t):
-    if not t or not str(t).strip():
+    if t is None:
         return "—"
-    return " ".join([line.strip() for line in str(t).splitlines() if line.strip()])
+
+    txt = str(t).strip()
+    if txt == "" or txt == "-" or txt == "—":
+        return "—"
+
+    cleaned = " ".join(line.strip() for line in txt.splitlines() if line.strip())
+    return cleaned if cleaned else "—"
 
 
 # ---------------------------------------------------------
@@ -77,6 +92,7 @@ def generate_html(flat):
             f"            reference: `{js_escape(s['reference'])}`,\n"
             f"            text: `{js_escape(s['text'])}`,\n"
             f"            meaning: `{js_escape(meaning)}`,\n"
+            f"            saral: `{js_escape(s['saral'])}`,\n"
             f"            example: `{js_escape(example)}`\n"
             "        }"
         )
@@ -306,24 +322,28 @@ function render(){
         let s=SHLOKAS[i];
 
         html+=`
-        <div class="frame" id="shlok_${i}">
+            <div class="frame" id="shlok_${i}">
 
-            <div style="font-weight:bold; margin-bottom:6px;">
-                ${i + 1}) 
-                <button class="blue small-btn" onclick="readSingle(${i})">▶ Start This Shlok</button>
-                <button class="red small-btn" onclick="stopSingle()">■ Stop</button>
-            </div>
+                <div style="font-weight:bold; margin-bottom:6px;">
+                    ${i + 1}) 
+                    <button class="blue small-btn" onclick="readSingle(${i})">▶ Start This Shlok</button>
+                    <button class="red small-btn" onclick="stopSingle()">■ Stop</button>
+                </div>
 
-            <h4>📗 अनुभाग: ${s.section}</h4>
-            <b>समस्या:</b> ${s.problem}<br><br>
+                <h4>📗 अनुभाग: ${s.section}</h4>
+                <b>समस्या:</b> ${s.problem}<br><br>
 
-            <b>${s.reference}</b><br>
+                <b>${s.reference}</b><br><br>
 
-            <pre>${s.text}</pre>
+                <b>संस्कृत:</b><br>
+                <pre>${s.text}</pre>
 
-            <b>अर्थ:</b> ${s.meaning}<br><br>
-            <b>उदाहरण:</b> ${s.example}
-        </div>`;
+                <b>हिंदी अर्थ:</b><br>
+                ${s.meaning}<br><br>
+
+                <b>उदाहरण:</b><br>
+                ${s.example}
+            </div>`;
     }
 
     document.getElementById("content").innerHTML=html;

@@ -1,6 +1,6 @@
-# ==============================
-# Python
-# ==============================
+############################################
+# PYTHON
+############################################
 __pycache__/
 *.py[cod]
 *.pyo
@@ -11,59 +11,71 @@ pip-log.txt
 
 # Virtual environments
 venv/
+.venv/
 .env/
 .env.bak/
-.venv/
 python_env/
 myenv/
 
-# ==============================
-# Node / Frontend
-# ==============================
+############################################
+# NODE / FRONTEND
+############################################
 node_modules/
 dist/
 *.cache
 *.tmp
 
-# ==============================
-# Java / Maven
-# ==============================
-/target/
+############################################
+# JAVA / ANDROID / GRADLE
+############################################
 *.class
 *.jar
 *.war
+*.apk
+*.ap_
+*.dex
 *.iml
-.mvn/
-.settings/
+
+# IntelliJ / Android Studio
+.idea/
 *.ipr
 *.iws
 *.classpath
-/.idea/
-*.out
-*.db
+*.project
+/.settings/
 
-# ==============================
-# Logs
-# ==============================
+# Gradle
+/.gradle/
+/build/
+
+# Android build directories
+android/app/build/
+android/build/
+android/.gradle/
+
+############################################
+# LOGS
+############################################
 logs/
 debug.log
 nohup.out
 *.log
 
-# ==============================
-# OS / IDE Junk
-# ==============================
+############################################
+# OS / IDE JUNK
+############################################
 Thumbs.db
 .DS_Store
 *.swp
 *.swo
 .vscode/
-.idea/
 *.bak
+*.orig
+*.tmp
 
-# ==============================
-# AI Models / Large Data
-# ==============================
+############################################
+# AI MODELS / LARGE DATA
+############################################
 *.h5
 *.pt
 *.pth
@@ -71,18 +83,16 @@ Thumbs.db
 *.joblib
 *.sav
 
-# ==============================
-# Temporary / Processing Files
-# ==============================
+############################################
+# TEMPORARY / PROCESSING FILES
+############################################
 uploads/
 tmp/
 cache/
-*.orig
-*.tmp
 
-# ==============================
-# Generated JSON / Runtime State
-# ==============================
+############################################
+# GENERATED JSON / RUNTIME STATE
+############################################
 domain_resume.json
 email_resume.json
 domain_cli_resume.json
@@ -90,9 +100,9 @@ email_cli_resume.json
 domain_gui_resume.json
 email_gui_resume.json
 
-# ==============================
-# Environment / Secrets
-# ==============================
+############################################
+# ENVIRONMENT / SECRETS
+############################################
 .env.local
 .env.development
 .env.production
@@ -100,30 +110,49 @@ email_gui_resume.json
 credentials.json
 secrets.json
 
-# ==============================
-# Project-specific cleanup
-# ==============================
-
-# Ignore SQLite temporary files
+############################################
+# SQLITE CLEANUP
+############################################
 *.sqlite3
 *.sqlite3-journal
 *.db-shm
 *.db-wal
 
-# Ignore cache folders
-common/__pycache__/
-
-# ==============================
-# Email Verifier Output Handling
-# ==============================
-
-# Do NOT ignore output folder – your program creates important reports
-
-# Ignore only temporary Excel lock files
+############################################
+# EXCEL LOCK FILES
+############################################
 ~$*.xlsx
 
-# ==============================
-# General Safety
-# ==============================
-*.orig
-*.tmp
+############################################
+# PROJECT-SPECIFIC PROTECTION (DO NOT IGNORE)
+############################################
+
+# ❌ DO NOT IGNORE data/ — IMPORTANT SHLOKAS
+!data/
+!data/*.py
+
+# ❌ DO NOT IGNORE HTML TEMPLATES
+!templates/
+!templates/*.html
+!templates/*.css
+!templates/*.js
+
+# ❌ DO NOT IGNORE ANDROID ASSETS
+!android/app/src/main/assets/
+!android/app/src/main/assets/fonts/
+!android/app/src/main/assets/html/
+
+# ❌ DO NOT IGNORE PYTHON SCRIPTS
+!main.py
+!generate_html.py
+!utils/
+!utils/*.py
+
+############################################
+# SAFE IGNORES INSIDE ASSETS
+############################################
+
+# Ignore old auto-generated HTML except final file
+android/app/src/main/assets/html/*.bak
+android/app/src/main/assets/html/*.tmp
+

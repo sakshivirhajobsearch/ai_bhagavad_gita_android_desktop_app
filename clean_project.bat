@@ -1,45 +1,76 @@
 @echo off
-title Cleaning Gita Android Project...
-echo ===============================
-echo  CLEANING PROJECT FOLDERS
-echo ===============================
-
-set ROOT_DIR=%cd%
-
+echo ============================================
+echo    CLEANING ANDROID GITA APP PROJECT
+echo ============================================
 echo.
-echo Removing __pycache__ folders except data folder's core files...
 
-REM Delete python __pycache__ safely (inside data only flush .pyc)
-if exist "%ROOT_DIR%\data\__pycache__" (
-    del /f /q "%ROOT_DIR%\data\__pycache__\*.pyc"
-    rmdir /s /q "%ROOT_DIR%\data\__pycache__"
-    echo ✅ data/__pycache__ cleaned.
+REM ------------------------------
+REM REMOVE PYTHON CACHE FILES
+REM ------------------------------
+echo 🔹 Removing Python cache files...
+for /r %%i in (__pycache__) do (
+    echo Deleting: %%i
+    rmdir /s /q "%%i" 2>nul
 )
 
-REM Remove utils directory
-if exist "%ROOT_DIR%\utils" (
-    rmdir /s /q "%ROOT_DIR%\utils"
-    echo ✅ utils folder removed.
-)
+del /s /q *.pyc 2>nul
 
-REM Remove Android build directories
-if exist "%ROOT_DIR%\android\app\build" (
-    rmdir /s /q "%ROOT_DIR%\android\app\build"
-    echo ✅ android/app/build removed.
-)
-
-if exist "%ROOT_DIR%\android\.gradle" (
-    rmdir /s /q "%ROOT_DIR%\android\.gradle"
-    echo ✅ android/.gradle removed.
-)
-
-REM Remove junk files
-del /f /q "%ROOT_DIR%\*.log" 2>nul
-del /f /q "%ROOT_DIR%\*.tmp" 2>nul
-del /f /q "%ROOT_DIR%\*.bak" 2>nul
-
+echo Done.
 echo.
-echo ===============================
-echo ✅ CLEAN PROJECT COMPLETED
-echo ===============================
+
+REM ------------------------------
+REM CLEAN ANDROID BUILD FOLDERS
+REM ------------------------------
+echo 🔹 Cleaning Android build directories...
+
+IF EXIST android\app\build (
+    echo Removing android\app\build ...
+    rmdir /s /q android\app\build
+)
+
+IF EXIST android\build (
+    echo Removing android\build ...
+    rmdir /s /q android\build
+)
+
+echo Done.
+echo.
+
+REM ------------------------------
+REM REMOVE OLD HTML FILES
+REM ------------------------------
+echo 🔹 Removing OLD html output files...
+
+IF EXIST android\app\src\main\assets\html\gita_problems.html (
+    del /q android\app\src\main\assets\html\gita_problems.html
+    echo Deleted gita_problems.html
+)
+
+IF EXIST android\app\src\main\assets\html\index.html (
+    del /q android\app\src\main\assets\html\index.html
+    echo Deleted index.html
+)
+
+REM KEEP ONLY gita_shlokas.html
+echo Keeping gita_shlokas.html
+echo.
+
+REM ------------------------------
+REM DO NOT DELETE data FOLDER
+REM ------------------------------
+echo 🔒 Skipping deletion of the "data" folder (important)
+echo.
+
+REM ------------------------------
+REM CLEAN LOGS & TEMP FILES
+REM ------------------------------
+echo 🔹 Cleaning temporary files...
+del /s /q *.log *.tmp 2>nul
+
+echo Done.
+echo.
+
+echo ============================================
+echo Project Cleaned Successfully!
+echo ============================================
 pause

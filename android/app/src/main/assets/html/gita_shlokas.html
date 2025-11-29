@@ -37,7 +37,12 @@ hr {
     border-radius: 12px;
     padding: 12px;
     margin-top: 12px;
-    line-height: 1.45;
+    height: 480px;
+    overflow-y: auto;
+}
+
+.highlight {
+    background: yellow;
 }
 
 button {
@@ -99,14 +104,24 @@ pre {
     <button onclick="nextPage()">Next ➡</button>
 </div>
 
+
 <script>
 
+// -------------------------------
+// JS CONSTANTS
+// -------------------------------
 const PER_PAGE = 2;
 let page = 0;
-let reading = false;
+
 let autoIndex = 0;
+let reading = false;
 let readTimer = null;
 
+let maleVoice = false;
+
+// -------------------------------
+// LOAD SHLOKAS
+// -------------------------------
 const SHLOKAS = [
         {
             id: 1,
@@ -943,13 +958,33 @@ const SHLOKAS = [
         }
 ];
 
+
+// -------------------------------
+// SPEAK FUNCTION
+// -------------------------------
 function speak(text) {
+
+    stopSpeaking();
+
+    // Android TTS
     if (typeof Android !== "undefined" && Android.speak) {
-        Android.speak(text);
+        Android.speak(text, maleVoice ? "male" : "female");
         return;
     }
+
+    // Browser TTS
     const msg = new SpeechSynthesisUtterance(text);
-    speechSynthesis.cancel();
+    msg.rate = 0.9;
+    msg.pitch = maleVoice ? 1.0 : 1.3;
+
+    let voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+        msg.voice = voices.find(v => 
+            (maleVoice ? v.name.toLowerCase().includes("male") :
+                         v.name.toLowerCase().includes("female"))
+        ) || voices[0];
+    }
+
     speechSynthesis.speak(msg);
 }
 
@@ -961,9 +996,26 @@ function stopSpeaking() {
     speechSynthesis.cancel();
 }
 
+
+// -------------------------------
+// HIGHLIGHT HANDLER
+// -------------------------------
+function highlightFrame(i) {
+    document.querySelectorAll(".frame").forEach(f => f.classList.remove("highlight"));
+
+    let f = document.getElementById("shlok_" + i);
+    if (f) f.classList.add("highlight");
+}
+
+
+// -------------------------------
+// INDIVIDUAL SHLOK READING
+// -------------------------------
 function readSingle(i) {
     stopReading();
     const s = SHLOKAS[i];
+    highlightFrame(i);
+
     speak(s.text + "\nअर्थ: " + s.meaning + "\nउदाहरण: " + s.example);
 }
 
@@ -971,17 +1023,23 @@ function stopSingle() {
     stopSpeaking();
 }
 
+
+// -------------------------------
+// PAGE RENDERING
+// -------------------------------
 function render() {
+
     const start = page * PER_PAGE;
     const end = Math.min(start + PER_PAGE, SHLOKAS.length);
 
     let html = "";
 
     for (let i = start; i < end; i++) {
+
         const s = SHLOKAS[i];
 
         html += `
-        <div class="frame">
+        <div class="frame" id="shlok_${i}">
 
             <button class="blue small-btn" onclick="readSingle(${i})">▶ Start This Shlok</button>
             <button class="red small-btn" onclick="stopSingle()">■ Stop</button>
@@ -1003,6 +1061,7 @@ function render() {
         "Page " + (page + 1) + " / " + Math.ceil(SHLOKAS.length / PER_PAGE);
 }
 
+
 function nextPage() {
     page = (page + 1) % Math.ceil(SHLOKAS.length / PER_PAGE);
     render();
@@ -1014,6 +1073,10 @@ function prevPage() {
     render();
 }
 
+
+// -------------------------------
+// SEQUENTIAL READING
+// -------------------------------
 function startReadingAll() {
     stopReading();
     reading = true;
@@ -1022,6 +1085,7 @@ function startReadingAll() {
 }
 
 function readNext() {
+
     if (!reading) return;
 
     if (autoIndex >= SHLOKAS.length) {
@@ -1029,7 +1093,10 @@ function readNext() {
         return;
     }
 
+    highlightFrame(autoIndex);
+
     const s = SHLOKAS[autoIndex];
+
     speak(s.text + "\nअर्थ: " + s.meaning + "\nउदाहरण: " + s.example);
 
     readTimer = setTimeout(() => {
@@ -1046,7 +1113,7 @@ function stopReading() {
 
 function resumeReading() {
     if (!reading) {
-        reading = true;
+        reading = True;
         readNext();
     }
 }

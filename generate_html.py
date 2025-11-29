@@ -9,11 +9,14 @@ OUTPUT_HTML = os.path.join(
 )
 
 SHLOKAS_PER_PAGE = 2
+FRAME_HEIGHT_PX = 480  # Fixed frame height for Android
 
 
+# ---------------------------------------------------
+#   FLATTEN ALL SECTIONS INTO A SINGLE LIST
+# ---------------------------------------------------
 def flatten_sections(all_sections):
     flat = []
-
     for sec in all_sections:
         if isinstance(sec, list):
             sec = sec[0]
@@ -34,6 +37,9 @@ def flatten_sections(all_sections):
     return flat
 
 
+# ---------------------------------------------------
+#   ESCAPE SPECIAL CHARACTERS FOR JS
+# ---------------------------------------------------
 def js_escape(text):
     if not text:
         return ""
@@ -44,10 +50,13 @@ def js_escape(text):
     )
 
 
-def generate_html(flat_data):
+# ---------------------------------------------------
+#   FINAL HTML GENERATOR
+# ---------------------------------------------------
+def generate_html(flat):
 
     js_entries = []
-    for i, s in enumerate(flat_data, start=1):
+    for i, s in enumerate(flat, start=1):
         js_entries.append(
 f"""        {{
             id: {i},
@@ -62,6 +71,9 @@ f"""        {{
 
     js_array = ",\n".join(js_entries)
 
+    # ---------------------------------------------------
+    #   COMPLETE HTML PAGE
+    # ---------------------------------------------------
     html = f"""
 <!DOCTYPE html>
 <html>
@@ -101,7 +113,12 @@ hr {{
     border-radius: 12px;
     padding: 12px;
     margin-top: 12px;
-    line-height: 1.45;
+    height: {FRAME_HEIGHT_PX}px;
+    overflow-y: auto;
+}}
+
+.highlight {{
+    background: yellow;
 }}
 
 button {{
@@ -163,25 +180,55 @@ pre {{
     <button onclick="nextPage()">Next ➡</button>
 </div>
 
+
 <script>
 
+// -------------------------------
+// JS CONSTANTS
+// -------------------------------
 const PER_PAGE = {SHLOKAS_PER_PAGE};
 let page = 0;
-let reading = false;
+
 let autoIndex = 0;
+let reading = false;
 let readTimer = null;
 
+let maleVoice = false;
+
+// -------------------------------
+// LOAD SHLOKAS
+// -------------------------------
 const SHLOKAS = [
 {js_array}
 ];
 
+
+// -------------------------------
+// SPEAK FUNCTION
+// -------------------------------
 function speak(text) {{
+
+    stopSpeaking();
+
+    // Android TTS
     if (typeof Android !== "undefined" && Android.speak) {{
-        Android.speak(text);
+        Android.speak(text, maleVoice ? "male" : "female");
         return;
     }}
+
+    // Browser TTS
     const msg = new SpeechSynthesisUtterance(text);
-    speechSynthesis.cancel();
+    msg.rate = 0.9;
+    msg.pitch = maleVoice ? 1.0 : 1.3;
+
+    let voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {{
+        msg.voice = voices.find(v => 
+            (maleVoice ? v.name.toLowerCase().includes("male") :
+                         v.name.toLowerCase().includes("female"))
+        ) || voices[0];
+    }}
+
     speechSynthesis.speak(msg);
 }}
 
@@ -193,9 +240,26 @@ function stopSpeaking() {{
     speechSynthesis.cancel();
 }}
 
+
+// -------------------------------
+// HIGHLIGHT HANDLER
+// -------------------------------
+function highlightFrame(i) {{
+    document.querySelectorAll(".frame").forEach(f => f.classList.remove("highlight"));
+
+    let f = document.getElementById("shlok_" + i);
+    if (f) f.classList.add("highlight");
+}}
+
+
+// -------------------------------
+// INDIVIDUAL SHLOK READING
+// -------------------------------
 function readSingle(i) {{
     stopReading();
     const s = SHLOKAS[i];
+    highlightFrame(i);
+
     speak(s.text + "\\nअर्थ: " + s.meaning + "\\nउदाहरण: " + s.example);
 }}
 
@@ -203,17 +267,23 @@ function stopSingle() {{
     stopSpeaking();
 }}
 
+
+// -------------------------------
+// PAGE RENDERING
+// -------------------------------
 function render() {{
+
     const start = page * PER_PAGE;
     const end = Math.min(start + PER_PAGE, SHLOKAS.length);
 
     let html = "";
 
     for (let i = start; i < end; i++) {{
+
         const s = SHLOKAS[i];
 
         html += `
-        <div class="frame">
+        <div class="frame" id="shlok_${{i}}">
 
             <button class="blue small-btn" onclick="readSingle(${{i}})">▶ Start This Shlok</button>
             <button class="red small-btn" onclick="stopSingle()">■ Stop</button>
@@ -235,6 +305,7 @@ function render() {{
         "Page " + (page + 1) + " / " + Math.ceil(SHLOKAS.length / PER_PAGE);
 }}
 
+
 function nextPage() {{
     page = (page + 1) % Math.ceil(SHLOKAS.length / PER_PAGE);
     render();
@@ -246,6 +317,10 @@ function prevPage() {{
     render();
 }}
 
+
+// -------------------------------
+// SEQUENTIAL READING
+// -------------------------------
 function startReadingAll() {{
     stopReading();
     reading = true;
@@ -254,6 +329,7 @@ function startReadingAll() {{
 }}
 
 function readNext() {{
+
     if (!reading) return;
 
     if (autoIndex >= SHLOKAS.length) {{
@@ -261,7 +337,10 @@ function readNext() {{
         return;
     }}
 
+    highlightFrame(autoIndex);
+
     const s = SHLOKAS[autoIndex];
+
     speak(s.text + "\\nअर्थ: " + s.meaning + "\\nउदाहरण: " + s.example);
 
     readTimer = setTimeout(() => {{
@@ -278,7 +357,7 @@ function stopReading() {{
 
 function resumeReading() {{
     if (!reading) {{
-        reading = true;
+        reading = True;
         readNext();
     }}
 }}
@@ -299,8 +378,13 @@ render();
     return html
 
 
+
+# ---------------------------------------------------
+#   MAIN EXECUTION
+# ---------------------------------------------------
 def main():
     print("🔢 Current Sections Loaded:", len(ALL_SHLOKAS))
+
     flat = flatten_sections(ALL_SHLOKAS)
 
     print("🔹 Generating HTML...")
@@ -315,6 +399,7 @@ def main():
     print(OUTPUT_HTML)
 
     webbrowser.open("file://" + OUTPUT_HTML)
+
 
 
 if __name__ == "__main__":

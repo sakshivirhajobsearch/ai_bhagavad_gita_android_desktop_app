@@ -31,7 +31,7 @@ button {
 .blue { background:#1565c0; color:white; }
 .small-btn { padding:5px 10px; font-size:13px; }
 pre { white-space:pre-wrap; font-size:16px; margin-top:8px; }
-.controls-row { text-align:center; margin:8px 0; }
+.controls-row { text-align:center; margin:8px 0; display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:6px; }
 .voice-controls { display:inline-block; margin-left:14px; }
 .toggle {
   margin:0 6px; padding:6px 10px; border-radius:10px;
@@ -56,10 +56,23 @@ pre { white-space:pre-wrap; font-size:16px; margin-top:8px; }
 
 <div class="controls-row">
   <button class="green" onclick="startReadingAll()">Start</button>
+  <button class="green" onclick="nextButtonPressed()">Next</button>
   <button class="red" onclick="stopReading()">Stop</button>
   <button class="green" onclick="resumeReading()">Resume</button>
   <button class="green" onclick="readRandom()">Random</button>
   <button class="red" onclick="exitApp()">Exit</button>
+
+  <span style="width:12px;"></span>
+
+  <button id="femaleBtn" class="toggle">♀ Female</button>
+  <button id="maleBtn" class="toggle">Male</button>
+
+  <span style="width:12px;"></span>
+
+  <button id="verySlowBtn" class="toggle">Very Slow</button>
+  <button id="slowBtn" class="toggle">Slow</button>
+  <button id="mediumBtn" class="toggle">Medium</button>
+
   <span id="voiceControls" class="voice-controls"></span>
 </div>
 
@@ -745,57 +758,112 @@ const SHLOKAS = [
         }
 ];
 
-let page=0, reading=false, autoIndex=0, readTimer=null;
+let page = 0;
+let reading = false;
+let autoIndex = 0;
+let readTimer = null;
+
 let selectedGender = localStorage.getItem('gita_voice_gender') || 'female';
 let selectedSpeed  = localStorage.getItem('gita_voice_speed')  || 'slow';
-let browserVoice=null;
+let browserVoice = null;
 
-
-
+// ---------- VOICE LOADING (improved heuristics) ----------
 function loadVoices() {
     const list = speechSynthesis.getVoices();
     if (!list.length) return;
 
-    if (selectedGender === 'female') {
-        browserVoice = list.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('female'))
-                       || list.find(v => v.lang.includes('hi'))
-                       || list[0];
+    // Normalize names for matching
+    const lname = (s) => (s || "").toLowerCase();
+
+    // prefer exact Hindi language matches
+    const hindiVoices = list.filter(v => lname(v.lang || "").includes('hi') || lname(v.name || "").includes('hi'));
+
+    // helper for checking common male name tokens
+    const maleTokens = ['male','kumar','ravi','deepak','arun','raj','vijay','sachin','rahul','ajay','amit'];
+    const femaleTokens = ['female','woman','female','smt','sushma','seema','neha','priya','anita','anjali','lata'];
+
+    function findVoice(preferMale){
+        if (hindiVoices.length){
+            // try name tokens
+            for (let v of hindiVoices){
+                const nm = lname(v.name || "");
+                if (preferMale){
+                    for (let t of maleTokens) if (nm.includes(t)) return v;
+                } else {
+                    for (let t of femaleTokens) if (nm.includes(t)) return v;
+                }
+            }
+            // try gender words
+            for (let v of hindiVoices){
+                const nm = lname(v.name || "");
+                if (!preferMale && (nm.includes('female') || nm.includes('woman'))) return v;
+                if (preferMale && (nm.includes('male') || nm.includes('man'))) return v;
+            }
+            // fallback to any hindi voice
+            return hindiVoices[0];
+        }
+        // fallback global search
+        if (preferMale){
+            return list.find(v => maleTokens.some(t => lname(v.name||"").includes(t))) || list[0];
+        } else {
+            return list.find(v => femaleTokens.some(t => lname(v.name||"").includes(t))) || list[0];
+        }
+    }
+
+    if (selectedGender === 'female'){
+        browserVoice = findVoice(false);
     } else {
-        browserVoice = list.find(v => v.lang.includes('hi') && v.name.toLowerCase().includes('male'))
-                       || list.find(v => v.lang.includes('hi'))
-                       || list[0];
+        browserVoice = findVoice(true);
     }
 }
 speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
 
-
-
+// ---------- Helpers ----------
 function speedRate() {
     if (selectedSpeed === 'very_slow') return 0.72;
     if (selectedSpeed === 'slow') return 0.82;
     return 0.95;
 }
 
-function speak(text) {
-    try { if (Android?.speak) { Android.speak(text,selectedGender,selectedSpeed); return; } }
-    catch(e) {}
+function androidSpeakIfAvailable(text){
+    try {
+        if (typeof Android !== "undefined" && Android && Android.speak) {
+            // Android API: Android.speak(text, gender, speed)
+            Android.speak(text, selectedGender, selectedSpeed);
+            return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
+function speak(text){
+    // M3 priority:
+    // 1) Android.speak(text, gender, speed)
+    // 2) Browser selected voice (male/female heuristics)
+    // 3) Any available voice
+    if (androidSpeakIfAvailable(text)) return;
+
+    try {
+        speechSynthesis.cancel();
+    } catch(e){}
 
     let u = new SpeechSynthesisUtterance(text);
-    u.voice = browserVoice;
-    u.rate  = speedRate();
-    u.pitch = selectedGender==='female' ? 1.05 : 0.95;
-    u.lang  = browserVoice?.lang || 'hi-IN';
-
-    speechSynthesis.cancel();
+    u.rate = speedRate();
+    u.pitch = (selectedGender === 'female') ? 1.05 : 0.95;
+    u.lang = browserVoice?.lang || 'hi-IN';
+    if (browserVoice) {
+        u.voice = browserVoice;
+    }
     speechSynthesis.speak(u);
 }
 
-function stopTTS() {
-    try { Android.stopSpeak(); return; }
-    catch(e){}
-    speechSynthesis.cancel();
+function stopTTS(){
+    try { if (typeof Android !== "undefined" && Android && Android.stopSpeak) Android.stopSpeak(); } catch(e){}
+    try { speechSynthesis.cancel(); } catch(e){}
 }
 
+// ---------- Highlighting & rendering ----------
 function clearHighlights(){
     document.querySelectorAll(".frame.highlight").forEach(e=>e.classList.remove("highlight"));
 }
@@ -808,105 +876,19 @@ function highlightFrame(i){
     }
 }
 
-function startReadingAll(){
-    stopReading();
-    reading=true;
-    autoIndex=0;
-    readNext();
-}
-
-function readNext(){
-    if(!reading) return;
-
-    if(autoIndex >= SHLOKAS.length){
-        reading=false;
-        clearHighlights();
-        return;
-    }
-
-    // 🔥 AUTO PAGE SYNC FIX
-    let requiredPage = Math.floor(autoIndex / PER_PAGE);
-    if(requiredPage !== page){
-        page = requiredPage;
-        render();
-        setTimeout(()=>highlightFrame(autoIndex),200);
-    } else {
-        highlightFrame(autoIndex);
-    }
-
-    const s = SHLOKAS[autoIndex];
-
-    speak(
-        s.text +
-        "\n\nअर्थ:\n" + s.meaning +
-        "\n\nउदाहरण:\n" + s.example
-    );
-
-    readTimer = setTimeout(()=>{
-        autoIndex++;
-        readNext();
-    },14000);
-}
-
-function stopReading(){
-    reading=false;
-    clearTimeout(readTimer);
-    stopTTS();
-    clearHighlights();
-}
-function resumeReading(){
-    if(!reading){ reading=true; readNext(); }
-}
-function readRandom(){
-    stopReading();
-    const i=Math.floor(Math.random()*SHLOKAS.length);
-    readSingle(i);
-}
-function readSingle(i){
-    stopReading();
-
-    // Auto jump to correct page
-    let requiredPage = Math.floor(i / PER_PAGE);
-    if(requiredPage !== page){
-        page = requiredPage;
-        render();
-        setTimeout(()=>highlightFrame(i),200);
-    } else {
-        highlightFrame(i);
-    }
-
-    const s=SHLOKAS[i];
-    speak(
-        s.text +
-        "\n\nअर्थ:\n" + s.meaning +
-        "\n\nउदाहरण:\n" + s.example
-    );
-}
-function stopSingle(){ stopReading(); }
-
-function exitApp(){
-    try { Android.exitApp(); return; }
-    catch(e){}
-    window.close();
-}
-
-
-
 function render(){
-    const start=page*PER_PAGE;
-    const end=Math.min(start+PER_PAGE, SHLOKAS.length);
-    let html="";
+    const start = page * PER_PAGE;
+    const end = Math.min(start + PER_PAGE, SHLOKAS.length);
+    let html = "";
 
-    for(let i=start;i<end;i++){
-        let s=SHLOKAS[i];
-
-        html+=`
+    for (let i = start; i < end; i++){
+        let s = SHLOKAS[i];
+        html += `
             <div class="frame" id="shlok_${i}">
-
                 <div style="font-weight:bold; margin-bottom:6px;">
-                    ${i + 1})
+                    ${i+1})
                     <button class="blue small-btn" onclick="readSingle(${i})">▶ Start This Shlok</button>
-                    <button class="red small-btn" onclick="stopSingle()">■ Stop</button>
+                    <button class="red small-btn" onclick="stopReading()">■ Stop</button>
                 </div>
 
                 <h4>📗 अनुभाग: ${s.section}</h4>
@@ -922,74 +904,183 @@ function render(){
 
                 <b>उदाहरण:</b><br>
                 ${s.example}
-            </div>`;
+            </div>
+        `;
     }
 
-    document.getElementById("content").innerHTML=html;
+    document.getElementById("content").innerHTML = html;
     document.getElementById("pageInfo").innerText =
         "Page "+(page+1)+" / "+Math.ceil(SHLOKAS.length/PER_PAGE);
 }
 
+// ---------- Reading controls ----------
+
+function startReadingAll(){
+    stopReading();
+    reading = true;
+    autoIndex = 0;
+    readNext(); // begins sequential read
+}
+
+function readNext(){
+    if (!reading) return;
+
+    if (autoIndex >= SHLOKAS.length){
+        reading = false;
+        clearHighlights();
+        return;
+    }
+
+    // Auto page change
+    let requiredPage = Math.floor(autoIndex / PER_PAGE);
+    if (requiredPage !== page){
+        page = requiredPage;
+        render();
+        setTimeout(()=>highlightFrame(autoIndex), 200);
+    } else {
+        highlightFrame(autoIndex);
+    }
+
+    const s = SHLOKAS[autoIndex];
+    const text = s.text + "\n\nअर्थ:\n" + s.meaning + "\n\nउदाहरण:\n" + s.example;
+    speak(text);
+
+    // schedule next
+    clearTimeout(readTimer);
+    readTimer = setTimeout(() => {
+        autoIndex++;
+        readNext();
+    }, 14000);
+}
+
+function stopReading(){
+    reading = false;
+    clearTimeout(readTimer);
+    stopTTS();
+    clearHighlights();
+}
+
+function resumeReading(){
+    if (!reading){
+        reading = true;
+        // continue from current autoIndex (do not reset)
+        readNext();
+    }
+}
+
+// Next button behavior (Option B):
+// If reading is true -> jump to next shlok immediately and continue sequential reading.
+// If reading is false -> move to next and read it once.
+function nextButtonPressed(){
+    if (reading){
+        // jump to next immediately and continue
+        clearTimeout(readTimer);
+        autoIndex++;
+        if (autoIndex >= SHLOKAS.length) autoIndex = 0;
+        readNext();
+    } else {
+        // not in sequential mode: read next once (and remain not reading)
+        let nextIdx = autoIndex + 1;
+        if (nextIdx >= SHLOKAS.length) nextIdx = 0;
+        readSingle(nextIdx);
+        autoIndex = nextIdx; // update pointer
+    }
+}
+
+function readRandom(){
+    // Read only one random shlok; do not enable sequential reading.
+    stopReading();
+    const i = Math.floor(Math.random() * SHLOKAS.length);
+
+    // jump to page and highlight
+    let requiredPage = Math.floor(i / PER_PAGE);
+    if (requiredPage !== page){
+        page = requiredPage;
+        render();
+        setTimeout(()=>highlightFrame(i), 200);
+    } else {
+        highlightFrame(i);
+    }
+
+    const s = SHLOKAS[i];
+    const text = s.text + "\n\nअर्थ:\n" + s.meaning + "\n\nउदाहरण:\n" + s.example;
+    speak(text);
+    autoIndex = i; // keep pointer at current
+}
+
+function readSingle(i){
+    stopReading();
+
+    let requiredPage = Math.floor(i / PER_PAGE);
+    if (requiredPage !== page){
+        page = requiredPage;
+        render();
+        setTimeout(()=>highlightFrame(i), 200);
+    } else {
+        highlightFrame(i);
+    }
+
+    const s = SHLOKAS[i];
+    const text = s.text + "\n\nअर्थ:\n" + s.meaning + "\n\nउदाहरण:\n" + s.example;
+    speak(text);
+    autoIndex = i;
+}
+
+// ---------- Pagination ----------
 function nextPage(){
-    page=(page+1)%Math.ceil(SHLOKAS.length/PER_PAGE);
+    page = (page + 1) % Math.ceil(SHLOKAS.length / PER_PAGE);
     render();
 }
 function prevPage(){
-    page=(page-1+Math.ceil(SHLOKAS.length/PER_PAGE))%
-         Math.ceil(SHLOKAS.length/PER_PAGE);
+    page = (page - 1 + Math.ceil(SHLOKAS.length / PER_PAGE)) % Math.ceil(SHLOKAS.length / PER_PAGE);
     render();
 }
 
-
-
-function renderVoiceControls(){
-    const c=document.getElementById("voiceControls");
-    c.innerHTML="";
-
-    const g1=document.createElement("button");
-    g1.textContent="♀ Female";
-    g1.className="toggle"+(selectedGender==="female"?" selected":"");
-    g1.onclick=function(){
-        selectedGender="female";
-        localStorage.setItem("gita_voice_gender","female");
-        loadVoices();
-        renderVoiceControls();
-    };
-    c.appendChild(g1);
-
-    const g2=document.createElement("button");
-    g2.textContent="male";
-    g2.className="toggle"+(selectedGender==="male"?" selected":"");
-    g2.onclick=function(){
-        selectedGender="male";
-        localStorage.setItem("gita_voice_gender","male");
-        loadVoices();
-        renderVoiceControls();
-    };
-    c.appendChild(g2);
-
-    const speeds=[
-        {key:'very_slow',label:'Very Slow'},
-        {key:'slow',label:'Slow'},
-        {key:'medium',label:'Medium'}
-    ];
-
-    speeds.forEach(function(s){
-        const b=document.createElement("button");
-        b.textContent=s.label;
-        b.className="toggle"+(selectedSpeed===s.key?" speed-selected":"");
-        b.onclick=function(){
-            selectedSpeed=s.key;
-            localStorage.setItem("gita_voice_speed",s.key);
-            renderVoiceControls();
-        };
-        c.appendChild(b);
-    });
+// ---------- Voice UI wiring ----------
+function setGender(g){
+    selectedGender = g;
+    localStorage.setItem('gita_voice_gender', g);
+    loadVoices();
+    renderVoiceButtons();
 }
 
-loadVoices();
-renderVoiceControls();
+function setSpeed(s){
+    selectedSpeed = s;
+    localStorage.setItem('gita_voice_speed', s);
+    renderVoiceButtons();
+}
+
+function renderVoiceButtons(){
+    // Gender buttons
+    const f = document.getElementById('femaleBtn');
+    const m = document.getElementById('maleBtn');
+    f.className = 'toggle' + (selectedGender === 'female' ? ' selected' : '');
+    m.className = 'toggle' + (selectedGender === 'male' ? ' selected' : '');
+
+    // Speed buttons
+    document.getElementById('verySlowBtn').className = 'toggle' + (selectedSpeed === 'very_slow' ? ' speed-selected' : '');
+    document.getElementById('slowBtn').className = 'toggle' + (selectedSpeed === 'slow' ? ' speed-selected' : '');
+    document.getElementById('mediumBtn').className = 'toggle' + (selectedSpeed === 'medium' ? ' speed-selected' : '');
+}
+
+document.getElementById && (function attachVoiceUI(){
+    try {
+        document.getElementById('femaleBtn').onclick = function(){ setGender('female'); };
+        document.getElementById('maleBtn').onclick = function(){ setGender('male'); };
+        document.getElementById('verySlowBtn').onclick = function(){ setSpeed('very_slow'); };
+        document.getElementById('slowBtn').onclick = function(){ setSpeed('slow'); };
+        document.getElementById('mediumBtn').onclick = function(){ setSpeed('medium'); };
+    } catch(e){}
+})();
+
+// initial render + voice buttons
 render();
+renderVoiceButtons();
+
+function exitApp(){
+    try { if (typeof Android !== "undefined" && Android && Android.exitApp) Android.exitApp(); } catch(e){}
+    try { window.close(); } catch(e){}
+}
 
 </script>
 </body>

@@ -19,7 +19,7 @@ No description provided.
 
 ## 🧠 Tech Stack Used
 
-- **Detected Technologies:** Python, Java (Maven/Gradle), Android / Kotlin
+- **Detected Technologies:** Android, Batchfile, HTML, Java, Python
 - **GitHub Topics:** None
 
 ---
